@@ -4,6 +4,12 @@
 >
 > 关联项目：[DLC Protocol v2.6.0](https://github.com/soli0x4ea/digital-life-card) | [塔罗牌占卜师](https://github.com/soli0x4ea/imago-explorer) | [青蛙解剖实验台](https://github.com/soli0x4ea/frog-dissection-lab)
 
+## 🎯 在 TRAE 中体验
+
+[📦 下载 TRAE 专用包](https://github.com/soli0x4ea/cardforge/releases/download/v1.0.0-trae/cardforge.zip)
+
+> 解压后直接导入 TRAE 平台即可使用。包含完整 skill 包 + DLC v2.6.0 引擎。
+
 ---
 
 ## 为什么需要 CardForge
