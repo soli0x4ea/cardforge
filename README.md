@@ -6,7 +6,7 @@
 
 ## 🎯 在 TRAE 中体验
 
-[📦 下载 TRAE 专用包](https://github.com/soli0x4ea/cardforge/releases/download/v1.0.0-trae/cardforge.zip)
+[📦 下载 TRAE 专用包](https://github.com/soli0x4ea/cardforge/releases/download/v1.0.8-trae/cardforge-v1.0.8-trae.zip)
 
 > 解压后直接导入 TRAE 平台即可使用。包含完整 skill 包 + DLC v2.6.0 引擎。
 
