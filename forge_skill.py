@@ -18,6 +18,15 @@ import json
 import os
 import sys
 
+def _read_version():
+    try:
+        vf = os.path.join(os.path.dirname(__file__), "VERSION")
+        if os.path.exists(vf):
+            return open(vf).read().strip()
+    except Exception:
+        pass
+    return "1.1.2"
+
 sys.path.insert(0, os.path.dirname(__file__))
 
 from cardforge.design_ir import DesignIR
@@ -226,7 +235,7 @@ def forge_finalize(ir: DesignIR, card_dir: str, output_dir: str) -> str:
     _write_file(os.path.join(output_dir, "SKILL.md"), skill_md)
 
     # ── 5. 生成 VERSION ──
-    _write_file(os.path.join(output_dir, "VERSION"), "1.0.5\n")
+    _write_file(os.path.join(output_dir, "VERSION"), f"{_read_version()}\n")
 
     return output_dir
 
@@ -252,7 +261,7 @@ def _build_readme(ir: DesignIR, skill_name: str, card_id: str) -> str:
     channels = []
     for e in ir.entities:
         channels.extend(ch.channel_id for ch in e.channels)
-    triggers = [c.trigger_keywords for c in ir.triggers] if hasattr(ir, "triggers") else []
+    triggers = [t for c in ir.commands for t in c.triggers] if ir.commands else []
     trigger_flat = ", ".join([kw for t in triggers for kw in (t if isinstance(t, list) else [t])])
 
     return f"""# {skill_name}
@@ -323,11 +332,8 @@ MIT
 def _build_skill_md(ir: DesignIR, skill_name: str, card_id: str) -> str:
     """生成 Trae 风格的简化 SKILL.md（无代码，有使用方式+特性）。"""
     desc = ir.description or ""
-    triggers = getattr(ir, "triggers", [])
-    trigger_kw = []
-    for t in triggers:
-        kws = t.trigger_keywords if hasattr(t, "trigger_keywords") else (t if isinstance(t, list) else [t])
-        trigger_kw.extend(kws)
+    triggers = [t for c in ir.commands for t in c.triggers] if ir.commands else []
+    trigger_kw = [kw for t in triggers for kw in (t if isinstance(t, list) else [t])]
     trigger_str = " / ".join(trigger_kw[:6]) if trigger_kw else "开始"
 
     entities = ir.entities

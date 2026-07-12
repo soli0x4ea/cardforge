@@ -13,6 +13,17 @@ import os
 from typing import Optional
 from .design_ir import DesignIR, Complexity, Archetype
 
+def _get_version():
+    """读取 VERSION 文件，避免循环导入"""
+    try:
+        from pathlib import Path
+        vf = Path(__file__).parent.parent / "VERSION"
+        if vf.exists():
+            return vf.read_text().strip()
+    except Exception:
+        pass
+    return "1.1.2"
+
 
 def generate_card_json(ir: DesignIR) -> dict:
     """Step 1: 生成 card.json + identity/ 配置。
@@ -23,7 +34,7 @@ def generate_card_json(ir: DesignIR) -> dict:
         "card_id": ir.card_id,
         "card_name": ir.card_name,
         "protocol_version": "2.6.0",
-        "version": "1.0.5",
+        "version": _get_version(),
         "complexity_level": ir.complexity.value,
         "author": "cardforge",
         "created_at": "2026-07-11T00:00:00Z",
@@ -215,9 +226,9 @@ def build_narratives_prompt(ir: DesignIR) -> str:
           "op": "range",
           "channel": "channel_id",
           "brackets": [
-            [0, 30],
-            [31, 70],
-            [71, 100]
+            [0, 31],
+            [31, 71],
+            [71, 101]
           ],
           "texts": [
             "低值叙事文本",
@@ -235,9 +246,9 @@ def build_narratives_prompt(ir: DesignIR) -> str:
           "op": "range",
           "channel": "channel_id",
           "brackets": [
-            [0, 30],
-            [31, 70],
-            [71, 100]
+            [0, 31],
+            [31, 71],
+            [71, 101]
           ],
           "texts": [
             "叙事文本1",
@@ -251,17 +262,33 @@ def build_narratives_prompt(ir: DesignIR) -> str:
 }}
 ```
 
+
+
+**重要**：brackets 使用半开区间 [lo, hi)，相邻区间首尾相接不留间隙。例如 [0,31) + [31,71) + [71,101) 完整覆盖 [0,100] 全部取值，确保边界值 30/31/70/71/100 不会落空。
+
 ## 叙事文本创作规则
 
 1. **每个 op 至少 2 段 texts，最多 4 段**。
 2. **叙事文本应该是角色视角的**——以 {ir.identity.name} 的身份写出他/她/它感受到的、想到的、说出来的。
 3. **数值变化隐含在叙事中**——不要写 "mood +10"，要写 "尾巴尖翘了起来"。
-4. **文本长度 30-120 字**——太短没味道，太长拖沓。
+4. **文本长度 2-5 句**——太短像日志，太长像小说。
 5. **贴合叙事风格**: {ir.narratives.style}
 6. **事件叙事和命令叙事要区分**：事件是"发生了什么"，命令是"做了什么之后的感受变化"。
 
-请输出完整的 narratives.json（events + command_assembly），不要省略任何事件或命令。
-"""
+## 叙事质量检查清单
+
+生成完 narratives.json 后，请逐条自检：
+
+- [ ] 每个阈值事件至少有 2-3 条叙事变体（避免每次都一样）
+- [ ] 叙事文本长度适中（2-5 句），不是一句话也不是一段话
+- [ ] 使用了角色特有的语言风格（不是中性描述）
+- [ ] 避免「你觉得」「你感到」开头——让角色直接输出感受，不翻译
+- [ ] command_assembly 的 before/after 顺序正确（before → 数值变化 → after）
+- [ ] range/cond/flag_check/random 四种 op 格式正确
+- [ ] 高值叙事和低值叙事有明显区别（不是换几个词）
+- [ ] 叙事之间有递进感（不是独立片段，而是有情绪弧线）
+
+请输出完整的 narratives.json（events + command_assembly），不要省略任何事件或命令。"""
 
     return prompt
 

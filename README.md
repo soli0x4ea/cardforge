@@ -1,4 +1,4 @@
-# CardForge v1.0.8 — DLC 数字生命卡片编译器
+# CardForge v1.1.2 — DLC 数字生命卡片编译器
 
 > **会造卡片的卡片。** CardForge 本身是一张 DLC 卡片——它把设计文档/聊天记录/小说/一句话编译成可运行的数字生命卡片。
 >
@@ -6,7 +6,7 @@
 
 ## 🎯 在 TRAE 中体验
 
-[📦 下载 TRAE 专用包](https://github.com/soli0x4ea/cardforge/releases/download/v1.0.8-trae/cardforge-v1.0.8-trae.zip)
+[📦 下载 TRAE 专用包](https://github.com/soli0x4ea/cardforge/releases/download/v1.1.2/cardforge.zip)
 
 > 解压后直接导入 TRAE 平台即可使用。包含完整 skill 包 + DLC v2.6.0 引擎。
 

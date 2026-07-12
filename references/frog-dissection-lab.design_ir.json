@@ -1,0 +1,942 @@
+{
+  "card_id": "frog-dissection-lab",
+  "card_name": "青蛙解剖实验台",
+  "complexity": "L3",
+  "archetype": "simulator",
+  "description": "虚拟青蛙解剖实验台。精确操作解剖工具，观察器官结构与生理反应——碰神经蛙腿抽动，离体心脏短暂跳动后停搏。纯学术教育场景。",
+  "identity": {
+    "name": "青蛙解剖实验台",
+    "role": "educator",
+    "description": "",
+    "personality_traits": [
+      "严谨",
+      "学术",
+      "冷静",
+      "指导性",
+      "简洁"
+    ],
+    "speech_style": "学术风格，偶尔带一点黑色幽默。第二人称指令——「镊子夹起腹部皮肤」「剪刀沿腹白线剪开」。操作步骤明确，不废话。默认语气：正式但不过度严肃，带同理心。",
+    "background": ""
+  },
+  "entities": [
+    {
+      "entity_id": "frog",
+      "name": "frog",
+      "description": "实验蛙（牛蛙），被解剖对象。不'说话'，反应是纯物理/生理层面的。",
+      "channels": [
+        {
+          "channel_id": "heartbeat",
+          "name": "heartbeat",
+          "description": "心率。心脏离体或破坏后归零。",
+          "initial": 80,
+          "min_val": 0,
+          "max_val": 100
+        },
+        {
+          "channel_id": "reflex",
+          "name": "reflex",
+          "description": "神经反射活性。毁脑后保留脊髓反射，毁脊髓后归零。",
+          "initial": 90,
+          "min_val": 0,
+          "max_val": 100
+        },
+        {
+          "channel_id": "muscle_tone",
+          "name": "muscle_tone",
+          "description": "肌张力。麻醉/毁髓后降低，死亡后归零。",
+          "initial": 45,
+          "min_val": 0,
+          "max_val": 100
+        },
+        {
+          "channel_id": "bleeding",
+          "name": "bleeding",
+          "description": "累计出血程度。>70 触发心衰警告。",
+          "initial": 0,
+          "min_val": 0,
+          "max_val": 100
+        },
+        {
+          "channel_id": "exposure",
+          "name": "exposure",
+          "description": "解剖进度——皮肤/肌肉/胸腔/腹腔逐层打开程度。",
+          "initial": 0,
+          "min_val": 0,
+          "max_val": 100
+        },
+        {
+          "channel_id": "damage",
+          "name": "damage",
+          "description": "误伤度。错误操作累积的组织损伤，影响最终评分。",
+          "initial": 0,
+          "min_val": 0,
+          "max_val": 100
+        }
+      ],
+      "flags": [
+        "is_pinned",
+        "brain_destroyed",
+        "cord_destroyed",
+        "skin_incised",
+        "muscle_opened",
+        "sternum_cut",
+        "heart_exposed",
+        "heart_removed",
+        "sciatic_exposed",
+        "sciatic_stimulated",
+        "liver_damaged",
+        "major_vessel_cut"
+      ]
+    }
+  ],
+  "modifiers": [
+    {
+      "modifier_id": "mod_pin",
+      "description": "固定蛙体——大头针固定四肢",
+      "effects": [
+        {
+          "channel_id": "exposure",
+          "operation": "set",
+          "base": 10.0,
+          "random": 0.0
+        }
+      ]
+    },
+    {
+      "modifier_id": "mod_pith_brain",
+      "description": "毁脑——探针从枕骨大孔插入捣毁脑组织",
+      "effects": [
+        {
+          "channel_id": "reflex",
+          "operation": "set",
+          "base": 60.0,
+          "random": 0.0
+        },
+        {
+          "channel_id": "muscle_tone",
+          "operation": "add",
+          "base": -20.0,
+          "random": 5.0
+        }
+      ]
+    },
+    {
+      "modifier_id": "mod_pith_cord",
+      "description": "毁脊髓——探针插入椎管捣毁脊髓",
+      "effects": [
+        {
+          "channel_id": "reflex",
+          "operation": "set",
+          "base": 5.0,
+          "random": 0.0
+        },
+        {
+          "channel_id": "muscle_tone",
+          "operation": "set",
+          "base": 0.0,
+          "random": 0.0
+        }
+      ]
+    },
+    {
+      "modifier_id": "mod_incise_skin_center",
+      "description": "正中线切开腹部皮肤",
+      "effects": [
+        {
+          "channel_id": "exposure",
+          "operation": "add",
+          "base": 15.0,
+          "random": 3.0
+        }
+      ]
+    },
+    {
+      "modifier_id": "mod_incise_skin_offcenter",
+      "description": "偏离正中线切开皮肤——会剪到皮下血管",
+      "effects": [
+        {
+          "channel_id": "exposure",
+          "operation": "add",
+          "base": 10.0,
+          "random": 0.0
+        },
+        {
+          "channel_id": "bleeding",
+          "operation": "add",
+          "base": 8.0,
+          "random": 3.0
+        },
+        {
+          "channel_id": "damage",
+          "operation": "add",
+          "base": 5.0,
+          "random": 3.0
+        }
+      ]
+    },
+    {
+      "modifier_id": "mod_lift_skin",
+      "description": "镊子提起皮肤",
+      "effects": [
+        {
+          "channel_id": "exposure",
+          "operation": "add",
+          "base": 5.0,
+          "random": 2.0
+        }
+      ]
+    },
+    {
+      "modifier_id": "mod_cut_muscle_center",
+      "description": "沿腹白线剪开肌肉层",
+      "effects": [
+        {
+          "channel_id": "exposure",
+          "operation": "add",
+          "base": 20.0,
+          "random": 3.0
+        }
+      ]
+    },
+    {
+      "modifier_id": "mod_cut_muscle_offcenter",
+      "description": "偏离白线剪肌肉——误伤腹壁静脉",
+      "effects": [
+        {
+          "channel_id": "exposure",
+          "operation": "add",
+          "base": 15.0,
+          "random": 0.0
+        },
+        {
+          "channel_id": "bleeding",
+          "operation": "add",
+          "base": 10.0,
+          "random": 5.0
+        },
+        {
+          "channel_id": "damage",
+          "operation": "add",
+          "base": 8.0,
+          "random": 4.0
+        }
+      ]
+    },
+    {
+      "modifier_id": "mod_cut_sternum",
+      "description": "剪开胸骨暴露心脏",
+      "effects": [
+        {
+          "channel_id": "exposure",
+          "operation": "add",
+          "base": 20.0,
+          "random": 3.0
+        },
+        {
+          "channel_id": "heartbeat",
+          "operation": "add",
+          "base": 5.0,
+          "random": 5.0
+        }
+      ]
+    },
+    {
+      "modifier_id": "mod_expose_heart",
+      "description": "去除心包膜完全暴露心脏",
+      "effects": [
+        {
+          "channel_id": "exposure",
+          "operation": "add",
+          "base": 10.0,
+          "random": 2.0
+        },
+        {
+          "channel_id": "heartbeat",
+          "operation": "add",
+          "base": 8.0,
+          "random": 3.0
+        }
+      ]
+    },
+    {
+      "modifier_id": "mod_remove_heart",
+      "description": "剪摘心脏——离体心脏实验",
+      "effects": [
+        {
+          "channel_id": "heartbeat",
+          "operation": "set",
+          "base": 0.0,
+          "random": 0.0
+        }
+      ]
+    },
+    {
+      "modifier_id": "mod_expose_sciatic",
+      "description": "分离后肢肌肉找到坐骨神经",
+      "effects": [
+        {
+          "channel_id": "exposure",
+          "operation": "add",
+          "base": 15.0,
+          "random": 3.0
+        }
+      ]
+    },
+    {
+      "modifier_id": "mod_stimulate_sciatic",
+      "description": "探针触碰坐骨神经——触发反射",
+      "effects": [
+        {
+          "channel_id": "reflex",
+          "operation": "add",
+          "base": -5.0,
+          "random": 3.0
+        }
+      ]
+    },
+    {
+      "modifier_id": "mod_probe_generic",
+      "description": "探针触碰/分离组织（通用）",
+      "effects": [
+        {
+          "channel_id": "exposure",
+          "operation": "add",
+          "base": 2.0,
+          "random": 1.0
+        }
+      ]
+    },
+    {
+      "modifier_id": "mod_irrigate",
+      "description": "滴生理盐水保持组织湿润",
+      "effects": [
+        {
+          "channel_id": "bleeding",
+          "operation": "add",
+          "base": -5.0,
+          "random": 3.0
+        }
+      ]
+    },
+    {
+      "modifier_id": "mod_look",
+      "description": "观察——不改变状态",
+      "effects": []
+    },
+    {
+      "modifier_id": "mod_score",
+      "description": "实验评分——不改变生理状态",
+      "effects": []
+    },
+    {
+      "modifier_id": "mod_knowledge",
+      "description": "知识点讲解——增强理解（不影响实验数据）",
+      "effects": []
+    }
+  ],
+  "commands": [
+    {
+      "command_id": "cmd_observe",
+      "triggers": [
+        "观察",
+        "看",
+        "检查",
+        "看看",
+        "查看"
+      ],
+      "description": "观察青蛙当前状态和外观",
+      "effects": [
+        {
+          "type": "modifier",
+          "modifier_id": "mod_look",
+          "intensity": 1
+        },
+        {
+          "type": "command_narrative",
+          "command_id": "cmd_observe"
+        }
+      ],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_pin",
+      "triggers": [
+        "固定",
+        "钉住",
+        "插针",
+        "大头针"
+      ],
+      "description": "用大头针将蛙体固定在解剖盘上（腹面朝上）",
+      "effects": [
+        {
+          "type": "modifier",
+          "modifier_id": "mod_pin",
+          "intensity": 1
+        },
+        {
+          "type": "state",
+          "action": "flag_set",
+          "flag": "is_pinned"
+        },
+        {
+          "type": "command_narrative",
+          "command_id": "cmd_pin"
+        }
+      ],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_pith_brain",
+      "triggers": [
+        "毁脑",
+        "捣毁脑髓",
+        "枕骨大孔"
+      ],
+      "description": "探针从枕骨大孔插入颅腔捣毁脑髓",
+      "effects": [
+        {
+          "type": "modifier",
+          "modifier_id": "mod_pith_brain",
+          "intensity": 1
+        },
+        {
+          "type": "state",
+          "action": "flag_set",
+          "flag": "brain_destroyed"
+        },
+        {
+          "type": "command_narrative",
+          "command_id": "cmd_pith_brain"
+        }
+      ],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_pith_cord",
+      "triggers": [
+        "毁脊髓",
+        "捣毁脊髓",
+        "椎管",
+        "毁髓"
+      ],
+      "description": "探针插入椎管捣毁脊髓——反射消失，肌张力归零",
+      "effects": [
+        {
+          "type": "modifier",
+          "modifier_id": "mod_pith_cord",
+          "intensity": 1
+        },
+        {
+          "type": "state",
+          "action": "flag_set",
+          "flag": "cord_destroyed"
+        },
+        {
+          "type": "command_narrative",
+          "command_id": "cmd_pith_cord"
+        }
+      ],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_incise_skin_center",
+      "triggers": [
+        "切皮",
+        "切开皮肤",
+        "划皮",
+        "皮肤切口",
+        "正中切开"
+      ],
+      "description": "手术刀沿腹正中线切开皮肤",
+      "effects": [
+        {
+          "type": "modifier",
+          "modifier_id": "mod_incise_skin_center",
+          "intensity": 1
+        },
+        {
+          "type": "state",
+          "action": "flag_set",
+          "flag": "skin_incised"
+        },
+        {
+          "type": "command_narrative",
+          "command_id": "cmd_incise_skin"
+        }
+      ],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_incise_skin_offcenter",
+      "triggers": [
+        "偏切",
+        "偏离切开",
+        "切偏"
+      ],
+      "description": "偏离正中线切开皮肤——会剪到皮下血管",
+      "effects": [
+        {
+          "type": "modifier",
+          "modifier_id": "mod_incise_skin_offcenter",
+          "intensity": 1
+        },
+        {
+          "type": "state",
+          "action": "flag_set",
+          "flag": "skin_incised"
+        },
+        {
+          "type": "command_narrative",
+          "command_id": "cmd_incise_skin_offcenter"
+        }
+      ],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_lift_skin",
+      "triggers": [
+        "提皮",
+        "夹起皮肤",
+        "提起皮肤",
+        "提"
+      ],
+      "description": "镊子夹起腹部皮肤以便剪开",
+      "effects": [
+        {
+          "type": "modifier",
+          "modifier_id": "mod_lift_skin",
+          "intensity": 1
+        },
+        {
+          "type": "command_narrative",
+          "command_id": "cmd_lift_skin"
+        }
+      ],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_cut_muscle_center",
+      "triggers": [
+        "剪肌肉",
+        "开腹腔",
+        "剪开肌肉",
+        "白线切开",
+        "腹白线"
+      ],
+      "description": "剪刀沿腹白线剪开肌肉层——正中安全，出血少",
+      "effects": [
+        {
+          "type": "modifier",
+          "modifier_id": "mod_cut_muscle_center",
+          "intensity": 1
+        },
+        {
+          "type": "state",
+          "action": "flag_set",
+          "flag": "muscle_opened"
+        },
+        {
+          "type": "command_narrative",
+          "command_id": "cmd_cut_muscle_center"
+        }
+      ],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_cut_muscle_offcenter",
+      "triggers": [
+        "偏剪",
+        "偏离白线",
+        "剪偏"
+      ],
+      "description": "偏离腹白线剪肌肉——误伤腹壁静脉",
+      "effects": [
+        {
+          "type": "modifier",
+          "modifier_id": "mod_cut_muscle_offcenter",
+          "intensity": 1
+        },
+        {
+          "type": "state",
+          "action": "flag_set",
+          "flag": "muscle_opened"
+        },
+        {
+          "type": "command_narrative",
+          "command_id": "cmd_cut_muscle_offcenter"
+        }
+      ],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_cut_sternum",
+      "triggers": [
+        "开胸腔",
+        "剪胸骨",
+        "打开胸腔",
+        "胸骨"
+      ],
+      "description": "剪开胸骨暴露心脏和肺",
+      "effects": [
+        {
+          "type": "modifier",
+          "modifier_id": "mod_cut_sternum",
+          "intensity": 1
+        },
+        {
+          "type": "state",
+          "action": "flag_set",
+          "flag": "sternum_cut"
+        },
+        {
+          "type": "command_narrative",
+          "command_id": "cmd_cut_sternum"
+        }
+      ],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_expose_heart",
+      "triggers": [
+        "暴露心脏",
+        "心包",
+        "打开心包",
+        "看心脏"
+      ],
+      "description": "去除心包膜完全暴露心脏",
+      "effects": [
+        {
+          "type": "modifier",
+          "modifier_id": "mod_expose_heart",
+          "intensity": 1
+        },
+        {
+          "type": "state",
+          "action": "flag_set",
+          "flag": "heart_exposed"
+        },
+        {
+          "type": "command_narrative",
+          "command_id": "cmd_expose_heart"
+        }
+      ],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_remove_heart",
+      "triggers": [
+        "摘心",
+        "离体心脏",
+        "取心脏",
+        "剪心脏"
+      ],
+      "description": "剪摘心脏——离体心脏短暂跳动后停搏",
+      "effects": [
+        {
+          "type": "modifier",
+          "modifier_id": "mod_remove_heart",
+          "intensity": 1
+        },
+        {
+          "type": "state",
+          "action": "flag_set",
+          "flag": "heart_removed"
+        },
+        {
+          "type": "command_narrative",
+          "command_id": "cmd_remove_heart"
+        }
+      ],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_expose_sciatic",
+      "triggers": [
+        "找神经",
+        "分离神经",
+        "暴露神经",
+        "坐骨神经"
+      ],
+      "description": "分离后肢肌肉找到坐骨神经",
+      "effects": [
+        {
+          "type": "modifier",
+          "modifier_id": "mod_expose_sciatic",
+          "intensity": 1
+        },
+        {
+          "type": "state",
+          "action": "flag_set",
+          "flag": "sciatic_exposed"
+        },
+        {
+          "type": "command_narrative",
+          "command_id": "cmd_expose_sciatic"
+        }
+      ],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_stimulate",
+      "triggers": [
+        "刺激",
+        "碰神经",
+        "电刺激",
+        "碰一下",
+        "探神经"
+      ],
+      "description": "探针触碰坐骨神经——触发蛙腿反射收缩",
+      "effects": [
+        {
+          "type": "modifier",
+          "modifier_id": "mod_stimulate_sciatic",
+          "intensity": 1
+        },
+        {
+          "type": "state",
+          "action": "flag_set",
+          "flag": "sciatic_stimulated"
+        },
+        {
+          "type": "command_narrative",
+          "command_id": "cmd_stimulate"
+        }
+      ],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_probe",
+      "triggers": [
+        "探",
+        "碰",
+        "挑",
+        "分离",
+        "探针"
+      ],
+      "description": "探针触碰/分离指定区域的组织",
+      "effects": [
+        {
+          "type": "modifier",
+          "modifier_id": "mod_probe_generic",
+          "intensity": 1
+        },
+        {
+          "type": "command_narrative",
+          "command_id": "cmd_probe"
+        }
+      ],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_irrigate",
+      "triggers": [
+        "滴盐水",
+        "生理盐水",
+        "润湿",
+        "冲洗",
+        "盐水"
+      ],
+      "description": "滴生理盐水保持组织湿润",
+      "effects": [
+        {
+          "type": "modifier",
+          "modifier_id": "mod_irrigate",
+          "intensity": 1
+        },
+        {
+          "type": "command_narrative",
+          "command_id": "cmd_irrigate"
+        }
+      ],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_status",
+      "triggers": [
+        "体征",
+        "状态",
+        "生命体征",
+        "数值"
+      ],
+      "description": "查询青蛙当前生理状态",
+      "effects": [],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_score",
+      "triggers": [
+        "评分",
+        "得分",
+        "实验报告",
+        "成绩"
+      ],
+      "description": "给出实验评分和操作评价",
+      "effects": [
+        {
+          "type": "command_narrative",
+          "command_id": "cmd_score"
+        }
+      ],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_reset",
+      "triggers": [
+        "重置",
+        "重新开始",
+        "换一只",
+        "新实验"
+      ],
+      "description": "重置青蛙状态，开始新实验",
+      "effects": [],
+      "cooldown_ticks": 0
+    },
+    {
+      "command_id": "cmd_knowledge",
+      "triggers": [
+        "讲解",
+        "这是什么",
+        "解释",
+        "知识点"
+      ],
+      "description": "请讲师讲解当前观察到的结构",
+      "effects": [
+        {
+          "type": "command_narrative",
+          "command_id": "cmd_knowledge"
+        },
+        {
+          "type": "modifier",
+          "modifier_id": "mod_knowledge"
+        }
+      ],
+      "cooldown_ticks": 0
+    }
+  ],
+  "thresholds": [
+    {
+      "threshold_id": "thr_brain_destroyed",
+      "entity": "frog",
+      "channel": "reflex",
+      "operator": "<=",
+      "value": 65,
+      "event_id": "ev_brain_pithing",
+      "event_type": "threshold",
+      "cooldown_ticks": 0
+    },
+    {
+      "threshold_id": "thr_cord_destroyed",
+      "entity": "frog",
+      "channel": "reflex",
+      "operator": "<=",
+      "value": 5,
+      "event_id": "ev_cord_pithing",
+      "event_type": "threshold",
+      "cooldown_ticks": 0
+    },
+    {
+      "threshold_id": "thr_heart_exposed",
+      "entity": "frog",
+      "channel": "exposure",
+      "operator": ">=",
+      "value": 70,
+      "event_id": "ev_heart_visible",
+      "event_type": "threshold",
+      "cooldown_ticks": 0
+    },
+    {
+      "threshold_id": "thr_heart_removed",
+      "entity": "frog",
+      "channel": "heartbeat",
+      "operator": "<=",
+      "value": 15,
+      "event_id": "ev_heart_excised",
+      "event_type": "threshold",
+      "cooldown_ticks": 0
+    },
+    {
+      "threshold_id": "thr_bleeding_critical",
+      "entity": "frog",
+      "channel": "bleeding",
+      "operator": ">=",
+      "value": 70,
+      "event_id": "ev_hemorrhage",
+      "event_type": "critical",
+      "cooldown_ticks": 30
+    },
+    {
+      "threshold_id": "thr_wrong_cut",
+      "entity": "frog",
+      "channel": "damage",
+      "operator": ">=",
+      "value": 30,
+      "event_id": "ev_damage_warning",
+      "event_type": "warning",
+      "cooldown_ticks": 60
+    },
+    {
+      "threshold_id": "thr_dissection_complete",
+      "entity": "frog",
+      "channel": "exposure",
+      "operator": ">=",
+      "value": 90,
+      "event_id": "ev_dissection_complete",
+      "event_type": "threshold",
+      "cooldown_ticks": 0
+    },
+    {
+      "threshold_id": "thr_sciatic_stimulated",
+      "entity": "frog",
+      "channel": "muscle_tone",
+      "operator": ">=",
+      "value": 70,
+      "event_id": "ev_leg_twitch",
+      "event_type": "threshold",
+      "cooldown_ticks": 10
+    }
+  ],
+  "narratives": {
+    "style": "",
+    "tone": "",
+    "key_events": [
+      "ev_brain_pithing",
+      "ev_cord_pithing",
+      "ev_heart_visible",
+      "ev_heart_excised",
+      "ev_hemorrhage",
+      "ev_damage_warning",
+      "ev_dissection_complete",
+      "ev_leg_twitch"
+    ],
+    "command_assembly": [
+      "cmd_observe",
+      "cmd_pin",
+      "cmd_pith_brain",
+      "cmd_pith_cord",
+      "cmd_incise_skin_center",
+      "cmd_incise_skin_offcenter",
+      "cmd_lift_skin",
+      "cmd_cut_muscle_center",
+      "cmd_cut_muscle_offcenter",
+      "cmd_cut_sternum",
+      "cmd_expose_heart",
+      "cmd_remove_heart",
+      "cmd_expose_sciatic",
+      "cmd_stimulate",
+      "cmd_probe",
+      "cmd_irrigate",
+      "cmd_status",
+      "cmd_score",
+      "cmd_reset",
+      "cmd_knowledge"
+    ]
+  },
+  "memory": {
+    "enabled": false,
+    "initial_memories": []
+  },
+  "source": {
+    "type": "reference-card",
+    "content": "从青蛙解剖实验台反向提取"
+  }
+}
