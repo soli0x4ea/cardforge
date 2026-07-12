@@ -59,7 +59,7 @@
 # 设计文档 → 卡片（mock 模式，测试管线）
 python -m cardforge.forge --design design.md --output cards/my-card --llm mock
 
-# 设计文档 → 卡片（真实 LLM）
+# 设计文档 → 卡片（真实 LLM，开发中）
 python -m cardforge.forge --design design.md --output cards/my-card --llm api
 
 # 一句话 → 卡片
@@ -96,14 +96,14 @@ digital-life-card (v2.6.0)     ← 引擎——游戏机
 
 ## 已验证
 
-- 301/301 DLC 框架测试全过
+- 基于 DLC v2.6.0 引擎（框架 301 项测试全绿）
 - 端到端管线：设计文档 → DesignIR → 8 个 JSON → 校验 → 8/8 冒烟通过
 - 数值仿真：100 次随机命令无崩溃
 - TRAE Skill 完整导入/运行验证通过
 
 ## 下一步
 
-- [ ] 接入真实 LLM API（替换 `simulate_llm`）
+- [ ] 接入真实 LLM API（`--llm api` 标记为开发中，当前仅 mock 可用）
 - [ ] 聊天记录蒸馏管线
 - [ ] 小说/剧本角色抽取管线
 - [ ] 增量重编译（diff 检测）
